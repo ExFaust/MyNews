@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">MyNews</string>
+
+    <string name="error_message">Произошла ошибка</string>
+    <string name="no_connectivity_message">Нет соединения с интернетом</string>
+    <string name="http_message">Ошибка запроса или превышен лимит</string>
+
+    <string name="load_more">Загрузить ещё</string>
+</resources>
