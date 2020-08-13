@@ -18,12 +18,10 @@ import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 @InjectViewState
-class NewsPresenter @Inject constructor(repository: NewsRepository) :
-    MvpPresenter<MainView>(), NewsPagingAdapter.ClickCallback {
+class NewsPresenter @Inject constructor(repository: NewsRepository, newsPagingAdapter: NewsPagingAdapter) :
+    MvpPresenter<MainView>() {
 
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
-    private var newsAdapter: NewsPagingAdapter =
-        NewsPagingAdapter(this)
     private val sourceFactory = DataSourceFactory(compositeDisposable, repository)
     var articlesList: LiveData<PagedList<Article>>
 
@@ -36,7 +34,7 @@ class NewsPresenter @Inject constructor(repository: NewsRepository) :
             .build()
         articlesList = LivePagedListBuilder<Int, Article>(sourceFactory, config).build()
 
-        viewState.setAdapter(newsAdapter)
+        viewState.setAdapter(newsPagingAdapter)
     }
 
     fun getNetworkState(): LiveData<NetworkState> = Transformations.switchMap<NewsDataSource, NetworkState>(
@@ -58,11 +56,11 @@ class NewsPresenter @Inject constructor(repository: NewsRepository) :
         sourceFactory.dataSourceLiveData.value!!.invalidate()
     }
 
-    override fun onItemClicked(url: String?) {
+    fun onItemClicked(url: String?) {
         viewState.goToWebView(url!!)
     }
 
-    override fun onClickRetry() {
+    fun onClickRetry() {
         sourceFactory.dataSourceLiveData.value!!.retry()
     }
 }

@@ -20,10 +20,10 @@ import com.exfaust.mynews.data.model.NetworkState
 import com.exfaust.mynews.presentation.NewsPresenter
 import com.exfaust.mynews.presentation.views.MainView
 import com.exfaust.mynews.ui.adapters.NewsPagingAdapter
-
 import javax.inject.Inject
 
-class NewsFragment : MvpAppCompatFragment(), MainView {
+
+class NewsFragment : MvpAppCompatFragment(), MainView, NewsPagingAdapter.ClickCallback {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -36,7 +36,7 @@ class NewsFragment : MvpAppCompatFragment(), MainView {
     fun provide() = newsPresenter
 
     init {
-        App.instance.getAppComponent().inject(this)
+        App.instance.initNewsComponent(this)?.inject(this)
     }
 
     override fun onCreateView(
@@ -87,5 +87,18 @@ class NewsFragment : MvpAppCompatFragment(), MainView {
             swipeRefreshLayout.isRefreshing = networkState?.status == NetworkState.LOADING.status
         })
         swipeRefreshLayout.setOnRefreshListener { newsPresenter.onRefresh() }
+    }
+
+    override fun onItemClicked(url: String?) {
+        newsPresenter.onItemClicked(url)
+    }
+
+    override fun onClickRetry() {
+        newsPresenter.onClickRetry()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        App.instance.destroyNewsComponent()
     }
 }

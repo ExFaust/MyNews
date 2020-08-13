@@ -1,19 +1,17 @@
 package com.exfaust.mynews.ui.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.exfaust.mynews.GlideApp
-import com.exfaust.mynews.R
 import com.exfaust.mynews.data.model.Article
 import com.exfaust.mynews.data.model.NetworkState
 
-class NewsPagingAdapter(private val clickCallback: ClickCallback) : PagedListAdapter<Article, RecyclerView.ViewHolder>(
+class NewsPagingAdapter(
+    private val clickCallback: ClickCallback,
+    private val layoutInflater: LayoutInflater
+) : PagedListAdapter<Article, RecyclerView.ViewHolder>(
     UserDiffCallback
 ) {
 
@@ -36,10 +34,15 @@ class NewsPagingAdapter(private val clickCallback: ClickCallback) : PagedListAda
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            TYPE_ITEMS -> NewsViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.news_item, parent, false))
+            TYPE_ITEMS -> NewsViewHolder.create(
+                parent,
+                clickCallback,
+                layoutInflater
+            )
             TYPE_FOOTER -> NetworkStateViewHolder.create(
                 parent,
-                clickCallback
+                clickCallback,
+                layoutInflater
             )
             else -> throw IllegalArgumentException("unknown view type")
         }
@@ -47,7 +50,7 @@ class NewsPagingAdapter(private val clickCallback: ClickCallback) : PagedListAda
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-            TYPE_ITEMS -> (holder as NewsViewHolder).bind(getItem(position))
+            TYPE_ITEMS -> (holder as NewsViewHolder).bindTo(getItem(position))
             TYPE_FOOTER -> (holder as NetworkStateViewHolder).bindTo(networkState)
         }
     }
@@ -92,29 +95,6 @@ class NewsPagingAdapter(private val clickCallback: ClickCallback) : PagedListAda
                 } else if (hasExtraRow && previousState !== newNetworkState) {
                     notifyItemChanged(itemCount - 1)
                 }
-            }
-        }
-    }
-
-    inner class NewsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        private val titleTextView = itemView.findViewById<TextView>(R.id.titleTextView)
-        private val descriptionTextView = itemView.findViewById<TextView>(R.id.descriptionTextView)
-        private val dateTextView = itemView.findViewById<TextView>(R.id.dateTextView)
-        private val imageView = itemView.findViewById<ImageView>(R.id.imageView)
-
-        fun bind(item: Article?) {
-            titleTextView.text = item?.title
-            descriptionTextView.text = item?.description
-            dateTextView.text = item?.publishedAt
-
-            GlideApp.with(itemView.context)
-                .load(item?.urlToImage)
-                .placeholder(R.drawable.ic_launcher_background)
-                .into(imageView)
-
-            itemView.setOnClickListener {
-                if (adapterPosition != RecyclerView.NO_POSITION) clickCallback.onItemClicked(getItem(adapterPosition)?.url)
             }
         }
     }
