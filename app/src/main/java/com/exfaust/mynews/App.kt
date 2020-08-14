@@ -2,7 +2,7 @@ package com.exfaust.mynews
 
 import android.app.Application
 import com.exfaust.mynews.di.components.AppComponent
-import com.exfaust.mynews.di.DaggerAppComponent
+import com.exfaust.mynews.di.components.DaggerAppComponent
 import com.exfaust.mynews.di.components.NewsComponent
 import com.exfaust.mynews.di.modules.ApplicationModule
 import com.exfaust.mynews.di.modules.MainModule
